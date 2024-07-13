@@ -1,4 +1,5 @@
-﻿using Vintagestory.API.Client;
+﻿using System;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 
 namespace IngameModelCreator;
@@ -42,7 +43,11 @@ public class BlockEntityModel : BlockEntity
 
     public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tesselator)
     {
-        mesher.AddMeshData(Mesh);
+        try
+        {
+            mesher.AddMeshData(Mesh);
+        }
+        catch(Exception) { }
         base.OnTesselation(mesher, tesselator);
         return true;
     }
