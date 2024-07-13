@@ -69,11 +69,12 @@ public class GuiDialogModelCreator : GuiDialog
             }
         }
 
-        if (recompose)
-        {
-            recompose = false;
-            ComposeDialog();
-        }
+        //if (recompose)
+        //{
+        //    recompose = false;
+        //    //composer?.ReCompose();
+        //    ComposeDialog();
+        //}
         //ComposeDialog(); // used only for debug
     }
 
@@ -147,35 +148,35 @@ public class GuiDialogModelCreator : GuiDialog
             composer.AddIconButton(iconRemoveCustom, OnRemoveElement, RightCopySet(ref oneBounds, gap));
             composer.AddIconButton(iconDuplicateCustom, OnDuplicateElement, RightCopySet(ref oneBounds, gap));
 
-            composer.AddTextInput(BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedWidth(height * 5), (val) => OnInput(val, EnumAction.Rename), key: "inputElemName");
+            composer.AddTextInput(BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedWidth(height * 5), OnRenameElement, key: "inputElemName");
             composer.AddInset(BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedSize(height * 5, height * 21));
 
             switch (currentTab)
             {
                 case EnumTab.Cube:
                     composer.AddDynamicText("", textFont, BelowCopySet(ref twoBounds, height * 2, gap).WithFixedSize(textWidth, textHeight), "textScaleXYZ");
-                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnInput(val, EnumAction.Scale, EnumAxis.X), key: "inputScaleX");
-                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Scale, EnumAxis.Y), key: "inputScaleY");
-                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Scale, EnumAxis.Z), key: "inputScaleZ");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnScaleXYZ(val, EnumAxis.X), key: "inputScaleX");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnScaleXYZ(val, EnumAxis.Y), key: "inputScaleY");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnScaleXYZ(val, EnumAxis.Z), key: "inputScaleZ");
 
                     composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textPositionXYZ");
-                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnInput(val, EnumAction.Position, EnumAxis.X), key: "inputPositionX");
-                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Position, EnumAxis.Y), key: "inputPositionY");
-                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Position, EnumAxis.Z), key: "inputPositionZ");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnPositionXYZ(val, EnumAxis.X), key: "inputPositionX");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnPositionXYZ(val, EnumAxis.Y), key: "inputPositionY");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnPositionXYZ(val, EnumAxis.Z), key: "inputPositionZ");
 
                     composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textOriginXYZ");
-                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnInput(val, EnumAction.Origin, EnumAxis.X), key: "inputOriginX");
-                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Origin, EnumAxis.Y), key: "inputOriginY");
-                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Origin, EnumAxis.Z), key: "inputOriginZ");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnOriginXYZ(val, EnumAxis.X), key: "inputOriginX");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnOriginXYZ(val, EnumAxis.Y), key: "inputOriginY");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnOriginXYZ(val, EnumAxis.Z), key: "inputOriginZ");
 
                     composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textRotationXYZ");
-                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth1, height), (val) => OnInput(val, EnumAction.Rotation, EnumAxis.X), key: "inputRotationX");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth1, height), (val) => OnRotationXYZ(val, EnumAxis.X), key: "inputRotationX");
                     composer.AddSlider((val) => OnRotationXYZ(val, EnumAxis.X), RightCopySet(ref twoBoundsReserve, fixedDeltaX: gap).WithFixedWidth(height * sliderWidth), "sliderRotationX");
 
-                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap), (val) => OnInput(val, EnumAction.Rotation, EnumAxis.Y), key: "inputRotationY");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap), (val) => OnRotationXYZ(val, EnumAxis.Y), key: "inputRotationY");
                     composer.AddSlider((val) => OnRotationXYZ(val, EnumAxis.Y), RightCopySet(ref twoBoundsReserve, fixedDeltaX: gap).WithFixedWidth(height * sliderWidth), "sliderRotationY");
 
-                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap), (val) => OnInput(val, EnumAction.Rotation, EnumAxis.Z), key: "inputRotationZ");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap), (val) => OnRotationXYZ(val, EnumAxis.Z), key: "inputRotationZ");
                     composer.AddSlider((val) => OnRotationXYZ(val, EnumAxis.Z), RightCopySet(ref twoBoundsReserve, fixedDeltaX: gap).WithFixedWidth(height * sliderWidth), "sliderRotationZ");
 
                     composer.AddDynamicText("", textFont, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textElementProperties");
@@ -383,6 +384,8 @@ public class GuiDialogModelCreator : GuiDialog
         if (selectedElem.FacesResolved.Length == 0) return;
         ShapeElementFace selectedFace = selectedElem.FacesResolved[selectedFaceIndex];
         selectedFace.Glow = newVal;
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -393,6 +396,8 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].ReflectiveMode = newVal;
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -413,6 +418,8 @@ public class GuiDialogModelCreator : GuiDialog
         if (selectedElem.FacesResolved.Length == 0) return;
         ShapeElementFace selectedFace = selectedElem.FacesResolved[selectedFaceIndex];
         selectedFace.Uv[uvIndex] = newVal;
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -422,7 +429,8 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
         selectedFaceIndex = newVal;
-        recompose = true;
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -433,6 +441,8 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].Rotation = newVal;
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -443,6 +453,8 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].RenderPass = newVal;
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -452,6 +464,8 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].ClimateColorMap = val;
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -461,6 +475,8 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].SeasonColorMap = val;
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -470,6 +486,8 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].Shade = val;
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -479,123 +497,161 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return false;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return false;
         if (newVal is < -180 or > 180) return false;
+        ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
 
         switch (axis)
         {
-            case EnumAxis.X: Client.Shape.Elements[selectedElementIndex].RotationX = newVal; break;
-            case EnumAxis.Y: Client.Shape.Elements[selectedElementIndex].RotationY = newVal; break;
-            case EnumAxis.Z: Client.Shape.Elements[selectedElementIndex].RotationZ = newVal; break;
+            case EnumAxis.X:
+                selectedElem.RotationX = newVal;
+                break;
+            case EnumAxis.Y:
+                selectedElem.RotationY = newVal;
+                break;
+            case EnumAxis.Z:
+                selectedElem.RotationZ = newVal;
+                break;
         }
+
+        composer?.GetNumberInput("inputRotationX")?.SetValue(text: selectedElem.RotationX.ToString());
+        composer?.GetNumberInput("inputRotationY")?.SetValue(text: selectedElem.RotationY.ToString());
+        composer?.GetNumberInput("inputRotationZ")?.SetValue(text: selectedElem.RotationZ.ToString());
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
         return true;
     }
 
-    private void OnInput(string val, EnumAction action, EnumAxis axis = EnumAxis.X)
+    private void OnRotationXYZ(string val, EnumAxis axis)
     {
         double newVal = 0;
+        if (!double.TryParse(val, out newVal)) return;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-        if (action is not EnumAction.Rename && !double.TryParse(val, out newVal)) return;
+        if (newVal is < -180 or > 180) return;
+        ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
 
-        bool same = false;
-
-        if (action == EnumAction.Rename)
+        switch (axis)
         {
-            same = Client.Shape.Elements[selectedElementIndex].Name == val;
-            Client.Shape.Elements[selectedElementIndex].Name = val;
+            case EnumAxis.X:
+                selectedElem.RotationX = newVal;
+                break;
+            case EnumAxis.Y:
+                selectedElem.RotationY = newVal;
+                break;
+            case EnumAxis.Z:
+                selectedElem.RotationZ = newVal;
+                break;
         }
 
-        switch (action)
-        {
-            case EnumAction.Rename:
-                Client.Shape.Elements[selectedElementIndex].Name = val;
-                break;
-            case EnumAction.Scale:
-                if (newVal <= 0) return;
-                switch (axis)
-                {
-                    case EnumAxis.X:
-                        same = Client.Shape.Elements[selectedElementIndex].ScaleX == newVal;
-                        Client.Shape.Elements[selectedElementIndex].ScaleX = newVal; 
-                        break;
-                    case EnumAxis.Y:
-                        same = Client.Shape.Elements[selectedElementIndex].ScaleY == newVal;
-                        Client.Shape.Elements[selectedElementIndex].ScaleY = newVal; 
-                        break;
-                    case EnumAxis.Z:
-                        same = Client.Shape.Elements[selectedElementIndex].ScaleZ == newVal;
-                        Client.Shape.Elements[selectedElementIndex].ScaleZ = newVal;
-                        break;
-                }
-                break;
-            case EnumAction.Position:
-                switch (axis)
-                {
-                    case EnumAxis.X:
-                        same = Client.Shape.Elements[selectedElementIndex].To[0] == newVal;
-                        Client.Shape.Elements[selectedElementIndex].To[0] = newVal;
-                        Client.Shape.Elements[selectedElementIndex].From[0] = newVal - 1;
-                        OnInput(val, EnumAction.Origin, axis);
-                        break;
-                    case EnumAxis.Y:
-                        same = Client.Shape.Elements[selectedElementIndex].To[1] == newVal;
-                        Client.Shape.Elements[selectedElementIndex].To[1] = newVal;
-                        Client.Shape.Elements[selectedElementIndex].From[1] = newVal - 1;
-                        OnInput(val, EnumAction.Origin, axis);
-                        break;
-                    case EnumAxis.Z:
-                        same = Client.Shape.Elements[selectedElementIndex].To[2] == newVal;
-                        Client.Shape.Elements[selectedElementIndex].To[2] = newVal;
-                        Client.Shape.Elements[selectedElementIndex].From[2] = newVal - 1;
-                        OnInput(val, EnumAction.Origin, axis);
-                        break;
-                }
-                break;
-            case EnumAction.Origin:
-                switch (axis)
-                {
-                    case EnumAxis.X:
-                        Client.Shape.Elements[selectedElementIndex].RotationOrigin ??= new double[3];
-                        same = Client.Shape.Elements[selectedElementIndex].RotationOrigin[0] == newVal;
-                        Client.Shape.Elements[selectedElementIndex].RotationOrigin[0] = newVal;
-                        break;
-                    case EnumAxis.Y:
-                        Client.Shape.Elements[selectedElementIndex].RotationOrigin ??= new double[3];
-                        same = Client.Shape.Elements[selectedElementIndex].RotationOrigin[1] == newVal;
-                        Client.Shape.Elements[selectedElementIndex].RotationOrigin[1] = newVal;
-                        break;
-                    case EnumAxis.Z:
-                        Client.Shape.Elements[selectedElementIndex].RotationOrigin ??= new double[3];
-                        same = Client.Shape.Elements[selectedElementIndex].RotationOrigin[2] == newVal;
-                        Client.Shape.Elements[selectedElementIndex].RotationOrigin[2] = newVal;
-                        break;
-                }
-                break;
-            case EnumAction.Rotation:
-                if (newVal is < -180 or > 180) return;
-                switch (axis)
-                {
-                    case EnumAxis.X:
-                        same = Client.Shape.Elements[selectedElementIndex].RotationX == newVal;
-                        Client.Shape.Elements[selectedElementIndex].RotationX = newVal; 
-                        break;
-                    case EnumAxis.Y:
-                        same = Client.Shape.Elements[selectedElementIndex].RotationY == newVal;
-                        Client.Shape.Elements[selectedElementIndex].RotationY = newVal; 
-                        break;
-                    case EnumAxis.Z:
-                        same = Client.Shape.Elements[selectedElementIndex].RotationZ == newVal;
-                        Client.Shape.Elements[selectedElementIndex].RotationZ = newVal; 
-                        break;
-                }
-                break;
+        composer?.GetSlider("sliderRotationX")?.SetValues((int)selectedElem.RotationX, -180, 180, 1);
+        composer?.GetSlider("sliderRotationY")?.SetValues((int)selectedElem.RotationY, -180, 180, 1);
+        composer?.GetSlider("sliderRotationZ")?.SetValues((int)selectedElem.RotationZ, -180, 180, 1);
 
-        }
-        if (same)
+        //composer?.ReCompose();
+        blockEntity.MarkDirty(true);
+    }
+
+    private void OnScaleXYZ(string val, EnumAxis axis)
+    {
+        double newVal = 0;
+        if (!double.TryParse(val, out newVal)) return;
+        if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
+        if (Client.Shape.Elements.Length <= selectedElementIndex) return;
+        if (newVal <= 0) return;
+
+        switch (axis)
         {
-            return;
+            case EnumAxis.X: Client.Shape.Elements[selectedElementIndex].ScaleX = newVal; break;
+            case EnumAxis.Y: Client.Shape.Elements[selectedElementIndex].ScaleY = newVal; break;
+            case EnumAxis.Z: Client.Shape.Elements[selectedElementIndex].ScaleZ = newVal; break;
         }
-        recompose = true;
+
+        //composer?.ReCompose();
+        blockEntity.MarkDirty(true);
+    }
+
+    private void OnPositionXYZ(string val, EnumAxis axis)
+    {
+        double newVal = 0;
+        if (!double.TryParse(val, out newVal)) return;
+        if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
+        if (Client.Shape.Elements.Length <= selectedElementIndex) return;
+        ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
+
+        //composer?.GetNumberInput("inputOriginX")?.SetValue(text: selectedElem.Rotation == null ? 0.ToString() : rotation[0].ToString());
+        //composer?.GetNumberInput("inputOriginY")?.SetValue(text: selectedElem.Rotation == null ? 0.ToString() : rotation[1].ToString());
+        //composer?.GetNumberInput("inputOriginZ")?.SetValue(text: selectedElem.Rotation == null ? 0.ToString() : rotation[2].ToString());
+
+        switch (axis)
+        {
+            case EnumAxis.X:
+                selectedElem.To[0] = newVal;
+                selectedElem.From[0] = newVal - 1;
+                selectedElem.RotationOrigin ??= new double[3];
+                selectedElem.RotationOrigin[0] = newVal;
+                //OnOriginXYZ(val, axis);
+                break;
+            case EnumAxis.Y:
+                selectedElem.To[1] = newVal;
+                selectedElem.From[1] = newVal - 1;
+                selectedElem.RotationOrigin ??= new double[3];
+                selectedElem.RotationOrigin[1] = newVal;
+                //OnOriginXYZ(val, axis);
+                break;
+            case EnumAxis.Z:
+                selectedElem.To[2] = newVal;
+                selectedElem.From[2] = newVal - 1;
+                selectedElem.RotationOrigin ??= new double[3];
+                selectedElem.RotationOrigin[2] = newVal;
+                //OnOriginXYZ(val, axis);
+                break;
+        }
+
+        composer?.GetNumberInput("inputOriginX")?.SetValue(text: selectedElem.RotationOrigin == null ? 0.ToString() : selectedElem.RotationOrigin[0].ToString());
+        composer?.GetNumberInput("inputOriginY")?.SetValue(text: selectedElem.RotationOrigin == null ? 0.ToString() : selectedElem.RotationOrigin[1].ToString());
+        composer?.GetNumberInput("inputOriginZ")?.SetValue(text: selectedElem.RotationOrigin == null ? 0.ToString() : selectedElem.RotationOrigin[2].ToString());
+
+        composer?.ReCompose();
+        blockEntity.MarkDirty(true);
+    }
+
+    private void OnOriginXYZ(string val, EnumAxis axis)
+    {
+        double newVal = 0;
+        if (!double.TryParse(val, out newVal)) return;
+        if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
+        if (Client.Shape.Elements.Length <= selectedElementIndex) return;
+        ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
+
+        switch (axis)
+        {
+            case EnumAxis.X:
+                selectedElem.RotationOrigin ??= new double[3];
+                selectedElem.RotationOrigin[0] = newVal;
+                break;
+            case EnumAxis.Y:
+                selectedElem.RotationOrigin ??= new double[3];
+                selectedElem.RotationOrigin[1] = newVal;
+                break;
+            case EnumAxis.Z:
+                selectedElem.RotationOrigin ??= new double[3];
+                selectedElem.RotationOrigin[2] = newVal;
+                break;
+        }
+
+        composer?.ReCompose();
+        blockEntity.MarkDirty(true);
+    }
+
+    private void OnRenameElement(string val)
+    {
+        if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
+        if (Client.Shape.Elements.Length <= selectedElementIndex) return;
+
+        ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
+        selectedElem.Name = val;
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -617,6 +673,8 @@ public class GuiDialogModelCreator : GuiDialog
             }
         };
         Client.Shape.Elements = Client.Shape.Elements.Append(newElement);
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -625,6 +683,8 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
         Client.Shape.Elements = Client.Shape.Elements.Remove(Client.Shape.Elements[selectedElementIndex]);
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -636,6 +696,8 @@ public class GuiDialogModelCreator : GuiDialog
         ShapeElement duplicateElement = Client.Shape.Elements[selectedElementIndex].Clone();
         duplicateElement.Name = $"Cube{selectedElementIndex + 1}";
         Client.Shape.Elements = Client.Shape.Elements.Append(duplicateElement);
+
+        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
