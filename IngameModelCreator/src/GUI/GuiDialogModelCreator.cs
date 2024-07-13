@@ -8,14 +8,12 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
-using Vintagestory.Client.NoObf;
 using static IngameModelCreator.Utility.GuiElementExtensions;
 
 namespace IngameModelCreator.GUI;
 
 public class GuiDialogModelCreator : GuiDialog
 {
-    private bool recompose;
     private GuiComposer composer;
     private BlockEntityModel blockEntity;
     private int selectedElementIndex = 0;
@@ -36,26 +34,11 @@ public class GuiDialogModelCreator : GuiDialog
         }
     });
 
-    public List<GuiTab> Tabs => tabs;
-
     public override string ToggleKeyCombinationCode => guiCode;
 
     public GuiDialogModelCreator(ICoreClientAPI capi) : base(capi)
     {
         capi.Event.RegisterGameTickListener(Every500ms, 500);
-        if (Client.ShowDialog == true)
-        {
-            TryOpen();
-        }
-
-        ClientSettings.Inst.AddWatcher(ShowDialogSetting, delegate (bool on)
-        {
-            switch (on)
-            {
-                case true: TryOpen(); break;
-                case false: TryClose(); break;
-            }
-        });
     }
 
     private void Every500ms(float dt)
@@ -68,13 +51,6 @@ public class GuiDialogModelCreator : GuiDialog
                 blockEntity = bemodel;
             }
         }
-
-        //if (recompose)
-        //{
-        //    recompose = false;
-        //    //composer?.ReCompose();
-        //    ComposeDialog();
-        //}
         //ComposeDialog(); // used only for debug
     }
 
@@ -82,7 +58,7 @@ public class GuiDialogModelCreator : GuiDialog
     {
         ClearComposers();
 
-        if (blockEntity == null) return;
+        //if (blockEntity == null) return;
 
         Dictionary<short, string> renderPasses = new Dictionary<short, string>()
         {
@@ -332,10 +308,13 @@ public class GuiDialogModelCreator : GuiDialog
                         case 270: composer?.GetDropDown("dropdownFaceRotation")?.SetSelectedValue("270"); break;
                     }
 
+                    composer?.GetDropDown("dropdownFaceReflectiveMode")?.SetSelectedIndex((int)selectedFace.ReflectiveMode);
+
                     composer?.GetSwitch("switchFacePropertiesEnabled")?.SetValue(selectedFace.Enabled);
                     //composer?.GetSwitch("switchFacePropertiesAutoResolution")?.SetValue(autoresolutio);
                     //composer?.GetSwitch("switchFacePropertiesSnapUV")?.SetValue(snapuv);
                     composer?.GetNumberInput("inputFaceGlowLevel")?.SetValue(text: selectedFace.Glow.ToString());
+
 
                     //composer?.GetDropDown("dropdownFaceWindMode1")?.SetSelectedIndex(selectedFace.WindMode1);
                     //composer?.GetDropDown("dropdownFaceWindMode2")?.SetSelectedIndex(selectedFace.WindMode2);
@@ -352,6 +331,7 @@ public class GuiDialogModelCreator : GuiDialog
         ComposeDialog();
     }
 
+    // doesn't work for some reason
     private void ToggleFacePropertiesEnabled(bool val)
     {
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
@@ -359,7 +339,7 @@ public class GuiDialogModelCreator : GuiDialog
         ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
         if (selectedElem.FacesResolved.Length == 0) return;
         ShapeElementFace selectedFace = selectedElem.FacesResolved[selectedFaceIndex];
-        selectedFace.Enabled = val;
+        selectedElem.FacesResolved[selectedFaceIndex].Enabled = val;
         blockEntity.MarkDirty(true);
     }
 
@@ -379,25 +359,25 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
         if (!int.TryParse(val, out newVal)) return;
-        if (newVal is < 0 or > 255) return;
         ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
+        if (selectedElem == null) return;
         if (selectedElem.FacesResolved.Length == 0) return;
         ShapeElementFace selectedFace = selectedElem.FacesResolved[selectedFaceIndex];
+        if (newVal is < 0 or > 255)
+        {
+            composer?.GetNumberInput("inputFaceGlowLevel")?.SetValue(text: selectedFace.Glow.ToString());
+            return;
+        }
         selectedFace.Glow = newVal;
-
-        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
     private void OnSetFaceReflectiveMode(string val, bool selected)
     {
-        if (!EnumReflectiveMode.TryParse(val, out EnumReflectiveMode newVal)) return;
+        if (!int.TryParse(val, out int newVal)) return;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-
-        Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].ReflectiveMode = newVal;
-
-        //composer?.ReCompose();
+        Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].ReflectiveMode = (EnumReflectiveMode)newVal;
         blockEntity.MarkDirty(true);
     }
 
@@ -416,10 +396,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (!float.TryParse(val, out newVal)) return;
         ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
         if (selectedElem.FacesResolved.Length == 0) return;
-        ShapeElementFace selectedFace = selectedElem.FacesResolved[selectedFaceIndex];
-        selectedFace.Uv[uvIndex] = newVal;
-
-        //composer?.ReCompose();
+        selectedElem.FacesResolved[selectedFaceIndex].Uv[uvIndex] = newVal;
         blockEntity.MarkDirty(true);
     }
 
@@ -429,8 +406,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
         selectedFaceIndex = newVal;
-
-        //composer?.ReCompose();
+        ComposeDialog();
         blockEntity.MarkDirty(true);
     }
 
@@ -439,10 +415,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (!int.TryParse(val, out int newVal)) return;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-
         Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].Rotation = newVal;
-
-        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -451,10 +424,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (!short.TryParse(val, out short newVal)) return;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-
         Client.Shape.Elements[selectedElementIndex].RenderPass = newVal;
-
-        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -462,10 +432,7 @@ public class GuiDialogModelCreator : GuiDialog
     {
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-
         Client.Shape.Elements[selectedElementIndex].ClimateColorMap = val;
-
-        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -473,10 +440,7 @@ public class GuiDialogModelCreator : GuiDialog
     {
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-
         Client.Shape.Elements[selectedElementIndex].SeasonColorMap = val;
-
-        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -484,10 +448,7 @@ public class GuiDialogModelCreator : GuiDialog
     {
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-
         Client.Shape.Elements[selectedElementIndex].Shade = val;
-
-        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -496,8 +457,15 @@ public class GuiDialogModelCreator : GuiDialog
         double newVal = val;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return false;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return false;
-        if (newVal is < -180 or > 180) return false;
         ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
+        if (selectedElem == null) return false;
+        if (newVal is < -180 or > 180)
+        {
+            composer?.GetNumberInput("inputRotationX")?.SetValue(text: selectedElem.RotationX.ToString());
+            composer?.GetNumberInput("inputRotationY")?.SetValue(text: selectedElem.RotationY.ToString());
+            composer?.GetNumberInput("inputRotationZ")?.SetValue(text: selectedElem.RotationZ.ToString());
+            return false;
+        }
 
         switch (axis)
         {
@@ -516,7 +484,6 @@ public class GuiDialogModelCreator : GuiDialog
         composer?.GetNumberInput("inputRotationY")?.SetValue(text: selectedElem.RotationY.ToString());
         composer?.GetNumberInput("inputRotationZ")?.SetValue(text: selectedElem.RotationZ.ToString());
 
-        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
         return true;
     }
@@ -527,8 +494,15 @@ public class GuiDialogModelCreator : GuiDialog
         if (!double.TryParse(val, out newVal)) return;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-        if (newVal is < -180 or > 180) return;
         ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
+        if (selectedElem == null) return;
+        if (newVal is < -180 or > 180)
+        {
+            composer?.GetNumberInput("inputRotationX")?.SetValue(text: selectedElem.RotationX.ToString());
+            composer?.GetNumberInput("inputRotationY")?.SetValue(text: selectedElem.RotationY.ToString());
+            composer?.GetNumberInput("inputRotationZ")?.SetValue(text: selectedElem.RotationZ.ToString());
+            return;
+        }
 
         switch (axis)
         {
@@ -547,7 +521,6 @@ public class GuiDialogModelCreator : GuiDialog
         composer?.GetSlider("sliderRotationY")?.SetValues((int)selectedElem.RotationY, -180, 180, 1);
         composer?.GetSlider("sliderRotationZ")?.SetValues((int)selectedElem.RotationZ, -180, 180, 1);
 
-        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -557,16 +530,23 @@ public class GuiDialogModelCreator : GuiDialog
         if (!double.TryParse(val, out newVal)) return;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-        if (newVal <= 0) return;
+        ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
+        if (selectedElem == null) return;
+        if (newVal <= 0)
+        {
+            composer?.GetNumberInput("inputScaleX")?.SetValue(text: selectedElem.ScaleX.ToString());
+            composer?.GetNumberInput("inputScaleY")?.SetValue(text: selectedElem.ScaleY.ToString());
+            composer?.GetNumberInput("inputScaleZ")?.SetValue(text: selectedElem.ScaleZ.ToString());
+            return;
+        }
 
         switch (axis)
         {
-            case EnumAxis.X: Client.Shape.Elements[selectedElementIndex].ScaleX = newVal; break;
-            case EnumAxis.Y: Client.Shape.Elements[selectedElementIndex].ScaleY = newVal; break;
-            case EnumAxis.Z: Client.Shape.Elements[selectedElementIndex].ScaleZ = newVal; break;
+            case EnumAxis.X: selectedElem.ScaleX = newVal; break;
+            case EnumAxis.Y: selectedElem.ScaleY = newVal; break;
+            case EnumAxis.Z: selectedElem.ScaleZ = newVal; break;
         }
 
-        //composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -578,10 +558,6 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
         ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
 
-        //composer?.GetNumberInput("inputOriginX")?.SetValue(text: selectedElem.Rotation == null ? 0.ToString() : rotation[0].ToString());
-        //composer?.GetNumberInput("inputOriginY")?.SetValue(text: selectedElem.Rotation == null ? 0.ToString() : rotation[1].ToString());
-        //composer?.GetNumberInput("inputOriginZ")?.SetValue(text: selectedElem.Rotation == null ? 0.ToString() : rotation[2].ToString());
-
         switch (axis)
         {
             case EnumAxis.X:
@@ -589,29 +565,24 @@ public class GuiDialogModelCreator : GuiDialog
                 selectedElem.From[0] = newVal - 1;
                 selectedElem.RotationOrigin ??= new double[3];
                 selectedElem.RotationOrigin[0] = newVal;
-                //OnOriginXYZ(val, axis);
                 break;
             case EnumAxis.Y:
                 selectedElem.To[1] = newVal;
                 selectedElem.From[1] = newVal - 1;
                 selectedElem.RotationOrigin ??= new double[3];
                 selectedElem.RotationOrigin[1] = newVal;
-                //OnOriginXYZ(val, axis);
                 break;
             case EnumAxis.Z:
                 selectedElem.To[2] = newVal;
                 selectedElem.From[2] = newVal - 1;
                 selectedElem.RotationOrigin ??= new double[3];
                 selectedElem.RotationOrigin[2] = newVal;
-                //OnOriginXYZ(val, axis);
                 break;
         }
 
         composer?.GetNumberInput("inputOriginX")?.SetValue(text: selectedElem.RotationOrigin == null ? 0.ToString() : selectedElem.RotationOrigin[0].ToString());
         composer?.GetNumberInput("inputOriginY")?.SetValue(text: selectedElem.RotationOrigin == null ? 0.ToString() : selectedElem.RotationOrigin[1].ToString());
         composer?.GetNumberInput("inputOriginZ")?.SetValue(text: selectedElem.RotationOrigin == null ? 0.ToString() : selectedElem.RotationOrigin[2].ToString());
-
-        composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
@@ -639,19 +610,17 @@ public class GuiDialogModelCreator : GuiDialog
                 break;
         }
 
-        composer?.ReCompose();
         blockEntity.MarkDirty(true);
     }
 
+    // check whether this method works
     private void OnRenameElement(string val)
     {
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
+        Client.Shape.Elements[selectedElementIndex].Name = val;
 
-        ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
-        selectedElem.Name = val;
-
-        //composer?.ReCompose();
+        //ComposeDialog();
         blockEntity.MarkDirty(true);
     }
 
@@ -673,8 +642,7 @@ public class GuiDialogModelCreator : GuiDialog
             }
         };
         Client.Shape.Elements = Client.Shape.Elements.Append(newElement);
-
-        //composer?.ReCompose();
+        ComposeDialog();
         blockEntity.MarkDirty(true);
     }
 
@@ -683,8 +651,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
         Client.Shape.Elements = Client.Shape.Elements.Remove(Client.Shape.Elements[selectedElementIndex]);
-
-        //composer?.ReCompose();
+        ComposeDialog();
         blockEntity.MarkDirty(true);
     }
 
@@ -692,25 +659,20 @@ public class GuiDialogModelCreator : GuiDialog
     {
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-
         ShapeElement duplicateElement = Client.Shape.Elements[selectedElementIndex].Clone();
         duplicateElement.Name = $"Cube{selectedElementIndex + 1}";
         Client.Shape.Elements = Client.Shape.Elements.Append(duplicateElement);
-
-        //composer?.ReCompose();
+        ComposeDialog();
         blockEntity.MarkDirty(true);
     }
 
     public override void OnGuiOpened()
     {
-        base.OnGuiOpened();
-        Client.ShowDialog = true;
         ComposeDialog();
     }
 
     public override void OnGuiClosed()
     {
-        base.OnGuiClosed();
-        Client.ShowDialog = false;
+        currentTab = 0;
     }
 }

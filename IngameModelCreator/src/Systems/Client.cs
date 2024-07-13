@@ -4,19 +4,12 @@ using System;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
-using Vintagestory.Client.NoObf;
 
 namespace IngameModelCreator.Systems;
 
 public class Client : ModSystem
 {
     public static Shape Shape { get; set; }
-
-    public static bool ShowDialog
-    {
-        get => ClientSettings.Inst.GetBoolSetting(ShowDialogSetting);
-        set => ClientSettings.Inst.Bool[ShowDialogSetting] = value;
-    }
 
     public override bool ShouldLoad(EnumAppSide forSide) => forSide == EnumAppSide.Client;
 
@@ -28,7 +21,6 @@ public class Client : ModSystem
         api.Gui.Icons.CustomIcons.Add(iconDuplicateCustom, DrawDuplicate);
 
         api.Input.RegisterHotKey(guiCode, guiCode, GlKeys.V, HotkeyType.CreativeTool, shiftPressed: true, ctrlPressed: true);
-        api.Input.SetHotKeyHandler(guiCode, (_) => { ShowDialog = !ShowDialog; return true; });
     }
 
     private void DrawAdd(Context ctx, int x, int y, float w, float h, double[] rgba)
