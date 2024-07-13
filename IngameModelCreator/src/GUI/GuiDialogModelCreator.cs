@@ -58,12 +58,7 @@ public class GuiDialogModelCreator : GuiDialog
     {
         ClearComposers();
 
-        //if (blockEntity == null) return;
-
-        Dictionary<short, string> renderPasses = new Dictionary<short, string>()
-        {
-            [-1] = langCodeDefault,
-        };
+        Dictionary<short, string> renderPasses = new Dictionary<short, string>() { [-1] = langCodeDefault };
         renderPasses.AddRange(Enum.GetValues<EnumChunkRenderPass>().ToDictionary(x => (short)x, y => $"{langCodeRenderPassPrefix}{Enum.GetName(y)}".Localize()));
         string[] renderPassNames = renderPasses.Values.ToArray();
         string[] renderPassValues = renderPasses.Keys.Select(x => x.ToString()).ToArray();
@@ -76,10 +71,7 @@ public class GuiDialogModelCreator : GuiDialog
         string[] reflectiveModeNames = Enum.GetNames<EnumReflectiveMode>().Select(x => $"{langCodeReflectiveModePrefix}{x}".Localize()).ToArray();
         string[] reflectiveModeValues = Enum.GetValues<EnumReflectiveMode>().Select(x => x.ToString()).ToArray();
 
-        Dictionary<int, string> windModes = new Dictionary<int, string>()
-        {
-            [-1] = langCodeDefault,
-        };
+        Dictionary<int, string> windModes = new Dictionary<int, string>() { [-1] = langCodeDefault };
         windModes.AddRange(Enum.GetValues<EnumWindBitMode>().ToDictionary(x => (int)x, y => $"{langCodeWindModePrefix}{Enum.GetName(y)}".Localize()));
         string[] windModeNames = windModes.Values.ToArray();
         string[] windModeValues = windModes.Keys.Select(x => x.ToString()).ToArray();
@@ -619,7 +611,6 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
         Client.Shape.Elements[selectedElementIndex].Name = val;
-
         //ComposeDialog();
         blockEntity.MarkDirty(true);
     }
