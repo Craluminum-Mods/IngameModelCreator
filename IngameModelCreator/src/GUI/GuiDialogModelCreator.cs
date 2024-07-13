@@ -393,6 +393,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].ReflectiveMode = newVal;
+        blockEntity.MarkDirty(true);
     }
 
     private void OnSetFaceWindMode(string val, bool selected)
@@ -422,6 +423,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
         selectedFaceIndex = newVal;
         recompose = true;
+        blockEntity.MarkDirty(true);
     }
 
     private void OnSetFaceRotation(string val, bool selected)
@@ -431,6 +433,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].Rotation = newVal;
+        blockEntity.MarkDirty(true);
     }
 
     private void OnSetRenderPass(string val, bool selected)
@@ -440,6 +443,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].RenderPass = newVal;
+        blockEntity.MarkDirty(true);
     }
 
     private void OnClimateInput(string val)
@@ -448,6 +452,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].ClimateColorMap = val;
+        blockEntity.MarkDirty(true);
     }
 
     private void OnSeasonInput(string val)
@@ -456,6 +461,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].SeasonColorMap = val;
+        blockEntity.MarkDirty(true);
     }
 
     private void ToggleElementPropertiesShade(bool val)
@@ -464,6 +470,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].Shade = val;
+        blockEntity.MarkDirty(true);
     }
 
     private bool OnRotationXYZ(int val, EnumAxis axis)
@@ -479,6 +486,7 @@ public class GuiDialogModelCreator : GuiDialog
             case EnumAxis.Y: Client.Shape.Elements[selectedElementIndex].RotationY = newVal; break;
             case EnumAxis.Z: Client.Shape.Elements[selectedElementIndex].RotationZ = newVal; break;
         }
+        blockEntity.MarkDirty(true);
         return true;
     }
 
