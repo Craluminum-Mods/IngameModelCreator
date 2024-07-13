@@ -1,10 +1,13 @@
-﻿using IngameModelCreator.Systems;
+﻿using Cairo;
+using IngameModelCreator.Systems;
 using IngameModelCreator.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.Client.NoObf;
@@ -20,6 +23,22 @@ public class GuiDialogModelCreator : GuiDialog
     private int selectedElementIndex = 0;
     private int selectedFaceIndex = 0;
     private EnumTab currentTab = EnumTab.Cube;
+
+    private List<GuiTab> tabs = new List<GuiTab>(new GuiTab[2]
+{
+        new GuiTab
+        {
+            Name = TabCube.langCodeName.Localize(),
+            DataInt = 0
+        },
+        new GuiTab
+        {
+            Name = TabFace.langCodeName.Localize(),
+            DataInt = 1
+        }
+    });
+
+    public List<GuiTab> Tabs => tabs;
 
     public override string ToggleKeyCombinationCode => guiCode;
 
@@ -43,28 +62,28 @@ public class GuiDialogModelCreator : GuiDialog
 
     private void Every500ms(float dt)
     {
-        if (recompose)
+        if (blockEntity == null)
+        {
+            BlockSelection blockSel = capi?.World?.Player?.CurrentBlockSelection;
+            if (blockSel != null && capi.World.BlockAccessor.GetBlockEntity(blockSel.Position) is BlockEntityModel bemodel)
+            {
+                blockEntity = bemodel;
+            }
+        }
+
+        if (recompose || blockEntity == null)
         {
             recompose = false;
-            composer?.ReCompose();
+            ComposeDialog();
         }
-        //ComposeDialog();
+        //ComposeDialog(); // used only for debug
     }
 
     private void ComposeDialog()
     {
-        if (blockEntity == null)
-        {
-            BlockSelection blockSel = capi?.World?.Player?.CurrentBlockSelection;
-            if (blockSel == null || capi.World.BlockAccessor.GetBlockEntity(blockSel.Position) is not BlockEntityModel bemodel)
-            {
-                ClearComposers();
-                return;
-            }
-            blockEntity = bemodel;
-        }
+        ClearComposers();
 
-        if (blockEntity == null) return;
+        if (blockEntity == null) { return; }
 
         Dictionary<short, string> renderPasses = new Dictionary<short, string>()
         {
@@ -94,15 +113,16 @@ public class GuiDialogModelCreator : GuiDialog
         double textHeight = GuiElement.scaled(height) / GuiElement.scaled(1.5);
         double gap = GuiElement.scaled(10);
         double gapM = GuiElement.scaled(gap) / GuiElement.scaled(2);
-        double inputWidth1 = GuiElement.scaled(height) * GuiElement.scaled(2);
+        double inputWidth1 = GuiElement.scaled(60);
         double inputWidth3 = GuiElement.scaled(75);
         double inputWidth4 = GuiElement.scaled(54);
-        double textWidth = GuiElement.scaled(height * 8);
-        double textInputWidth = GuiElement.scaled(height * 6);
+        double textWidth = GuiElement.scaled(240);
+        double textInputWidth = GuiElement.scaled(180);
         double dropdownWidth = (inputWidth3 * GuiElement.scaled(3)) + (gap * GuiElement.scaled(2));
         double sliderWidth = GuiElement.scaled(5.75);
 
         CairoFont textFont = CairoFont.WhiteSmallText();
+        CairoFont tabFont = CairoFont.WhiteSmallText().WithWeight(FontWeight.Bold);
 
         ElementBounds mainBounds = ElementStdBounds.AutosizedMainDialog
             .WithAlignment(EnumDialogArea.LeftTop)
@@ -123,8 +143,7 @@ public class GuiDialogModelCreator : GuiDialog
             composer.AddDialogTitleBarWithBg(guiCode.Localize(), () => TryClose());
             composer.BeginChildElements(childBounds);
 
-            composer.AddToggleButton(TabCube.langCodeName.Localize(), textFont, (_) => OnTabClicked(EnumTab.Cube), oneBounds, "tabCube");
-            composer.AddToggleButton(TabFace.langCodeName.Localize(), textFont, (_) => OnTabClicked(EnumTab.Face), twoBounds, "tabFace");
+            composer.AddHorizontalTabs(tabs.ToArray(), oneBounds.WithFixedWidth(textWidth), OnTabClicked, tabFont, tabFont, "tabs");
 
             composer.AddIconButton(iconPlus, OnAddElement, oneBoundsReserve = BelowCopySet(ref oneBounds, fixedDeltaY: gap).WithFixedWidth(height));
             composer.AddIconButton(iconRemoveCustom, OnRemoveElement, RightCopySet(ref oneBounds, gap));
@@ -223,14 +242,7 @@ public class GuiDialogModelCreator : GuiDialog
         }
         catch (Exception) { }
 
-        if (composer != null && composer.GetToggleButton("tabCube") != null && composer.GetToggleButton("tabFace") != null)
-        {
-            switch (currentTab)
-            {
-                case EnumTab.Cube: composer.GetToggleButton("tabCube").On = true; break;
-                case EnumTab.Face: composer.GetToggleButton("tabFace").On = true; break;
-            }
-        }
+        composer.GetHorizontalTabs("tabs").activeElement = (int)currentTab;
 
         if (Client.Shape != null && Client.Shape.Elements.Length != 0 && Client.Shape.Elements.Length > selectedElementIndex)
         {
@@ -335,17 +347,10 @@ public class GuiDialogModelCreator : GuiDialog
         }
     }
 
-    private void OnTabClicked(EnumTab tab)
+    private void OnTabClicked(int tabindex)
     {
-        EnumTab prevTab = currentTab;
-        EnumTab nextTab = tab;
-        currentTab = nextTab;
-
-        if (prevTab != nextTab)
-        {
-            ClearComposers();
-            ComposeDialog();
-        }
+        currentTab = (EnumTab)tabindex;
+        ComposeDialog();
     }
 
     private void ToggleFacePropertiesEnabled(bool val)
@@ -361,10 +366,12 @@ public class GuiDialogModelCreator : GuiDialog
 
     private void ToggleFacePropertiesAutoResolution(bool val)
     {
+        // not implemented
     }
 
     private void ToggleFacePropertiesSnapUV(bool val)
     {
+        // not implemented
     }
 
     private void OnFaceGlowLevel(string val)
@@ -392,27 +399,10 @@ public class GuiDialogModelCreator : GuiDialog
 
     private void OnSetFaceWindMode(string code, bool selected)
     {
-        //if (!int.TryParse(code, out int newVal)) return;
-        //if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
-        //if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-
+        // not implemented
         //Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].WindMode = newVal;
         //Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].WindData = newVal;
     }
- 
-
-    //private void OnSetFaceReflectiveMode(string val)
-    //{
-    //    int newVal;
-    //    if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
-    //    if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-    //    if (!int.TryParse(val, out newVal)) return;
-    //    ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
-    //    if (selectedElem.FacesResolved.Length == 0) return;
-    //    ShapeElementFace selectedFace = selectedElem.FacesResolved[selectedFaceIndex];
-    //    selectedFace.ReflectiveMode = (EnumReflectiveMode)newVal;
-    //    blockEntity.MarkDirty(true);
-    //}
 
     private void OnFaceInput(string val, int uvIndex)
     {
@@ -620,6 +610,5 @@ public class GuiDialogModelCreator : GuiDialog
     {
         base.OnGuiClosed();
         Client.ShowDialog = false;
-        ClearComposers();
     }
 }
