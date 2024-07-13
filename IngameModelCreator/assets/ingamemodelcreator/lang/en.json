@@ -31,6 +31,13 @@
   "EnumWindBitMode.WeakWindInverseBend": "WeakWindInverseBend",
   "EnumWindBitMode.WaterPlant": "WaterPlant",
 
+  "side-north": "North",
+  "side-east": "East",
+  "side-south": "South",
+  "side-west": "West",
+  "side-up": "Up",
+  "side-down": "Down",
+
   "Tab.Cube": "Cube",
   "Cube.Scale": "Scale",
   "Cube.Position": "Position",

@@ -4,10 +4,8 @@ using IngameModelCreator.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
-using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.Client.NoObf;
@@ -89,11 +87,11 @@ public class GuiDialogModelCreator : GuiDialog
         {
             [-1] = langCodeDefault,
         };
-        renderPasses.AddRange(Enum.GetValues<EnumChunkRenderPass>().ToDictionary(x => (short)x, y => $"{langCodeRenderPassPrefix}{Enum.GetName(y)}"));
+        renderPasses.AddRange(Enum.GetValues<EnumChunkRenderPass>().ToDictionary(x => (short)x, y => $"{langCodeRenderPassPrefix}{Enum.GetName(y)}".Localize()));
         string[] renderPassNames = renderPasses.Values.ToArray();
         string[] renderPassValues = renderPasses.Keys.Select(x => x.ToString()).ToArray();
 
-        string[] sideNames = BlockFacing.ALLFACES.Select(x => x.Code).ToArray();
+        string[] sideNames = BlockFacing.ALLFACES.Select(x => $"{langCodeSidePrefix}{x.Code}".Localize()).ToArray();
         string[] sideValues = BlockFacing.ALLFACES.Select(x => x.Index.ToString()).ToArray();
 
         string[] faceRotationNames = new string[] { "0", "90", "180", "270" };
@@ -422,8 +420,8 @@ public class GuiDialogModelCreator : GuiDialog
         if (!int.TryParse(val, out int newVal)) return;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-
         selectedFaceIndex = newVal;
+        recompose = true;
     }
 
     private void OnSetFaceRotation(string val, bool selected)

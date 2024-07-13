@@ -7,6 +7,7 @@ public static class Constants
     public const string langCodeRenderPassPrefix = $"{modid}:EnumChunkRenderPass.";
     public const string langCodeReflectiveModePrefix = $"{modid}:EnumReflectiveMode.";
     public const string langCodeWindModePrefix = $"{modid}:EnumWindBitMode.";
+    public const string langCodeSidePrefix = $"{modid}:side-";
     public const string langCodeDefault = "Default";
 
     public const string attributeShape = "shape";
