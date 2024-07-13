@@ -19,14 +19,13 @@ public class GuiDialogModelCreator : GuiDialog
     private BlockEntityModel blockEntity;
     private int selectedElementIndex = 0;
     private int selectedFaceIndex = 0;
-    private string currentTab = tabCube;
+    private EnumTab currentTab = EnumTab.Cube;
 
     public override string ToggleKeyCombinationCode => guiCode;
 
     public GuiDialogModelCreator(ICoreClientAPI capi) : base(capi)
     {
         capi.Event.RegisterGameTickListener(Every500ms, 500);
-        ComposeDialog();
         if (Client.ShowDialog == true)
         {
             TryOpen();
@@ -49,7 +48,6 @@ public class GuiDialogModelCreator : GuiDialog
             recompose = false;
             composer?.ReCompose();
         }
-
         //ComposeDialog();
     }
 
@@ -135,88 +133,89 @@ public class GuiDialogModelCreator : GuiDialog
             composer.AddTextInput(BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedWidth(height * 5), (val) => OnInput(val, EnumAction.Rename), key: "inputElemName");
             composer.AddInset(BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedSize(height * 5, height * 21));
 
-            if (currentTab == tabCube)
+            switch (currentTab)
             {
-                composer.AddDynamicText("", textFont, BelowCopySet(ref twoBounds, height * 2, gap).WithFixedSize(textWidth, textHeight), "textScaleXYZ");
-                composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnInput(val, EnumAction.Scale, EnumAxis.X), key: "inputScaleX");
-                composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Scale, EnumAxis.Y), key: "inputScaleY");
-                composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Scale, EnumAxis.Z), key: "inputScaleZ");
+                case EnumTab.Cube:
+                    composer.AddDynamicText("", textFont, BelowCopySet(ref twoBounds, height * 2, gap).WithFixedSize(textWidth, textHeight), "textScaleXYZ");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnInput(val, EnumAction.Scale, EnumAxis.X), key: "inputScaleX");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Scale, EnumAxis.Y), key: "inputScaleY");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Scale, EnumAxis.Z), key: "inputScaleZ");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textPositionXYZ");
-                composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnInput(val, EnumAction.Position, EnumAxis.X), key: "inputPositionX");
-                composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Position, EnumAxis.Y), key: "inputPositionY");
-                composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Position, EnumAxis.Z), key: "inputPositionZ");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textPositionXYZ");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnInput(val, EnumAction.Position, EnumAxis.X), key: "inputPositionX");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Position, EnumAxis.Y), key: "inputPositionY");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Position, EnumAxis.Z), key: "inputPositionZ");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textOriginXYZ");
-                composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnInput(val, EnumAction.Origin, EnumAxis.X), key: "inputOriginX");
-                composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Origin, EnumAxis.Y), key: "inputOriginY");
-                composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Origin, EnumAxis.Z), key: "inputOriginZ");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textOriginXYZ");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnInput(val, EnumAction.Origin, EnumAxis.X), key: "inputOriginX");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Origin, EnumAxis.Y), key: "inputOriginY");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnInput(val, EnumAction.Origin, EnumAxis.Z), key: "inputOriginZ");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textRotationXYZ");
-                composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth1, height), (val) => OnInput(val, EnumAction.Rotation, EnumAxis.X), key: "inputRotationX");
-                composer.AddSlider((val) => OnRotationXYZ(val, EnumAxis.X), RightCopySet(ref twoBoundsReserve, fixedDeltaX: gap).WithFixedWidth(height * sliderWidth), "sliderRotationX");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textRotationXYZ");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth1, height), (val) => OnInput(val, EnumAction.Rotation, EnumAxis.X), key: "inputRotationX");
+                    composer.AddSlider((val) => OnRotationXYZ(val, EnumAxis.X), RightCopySet(ref twoBoundsReserve, fixedDeltaX: gap).WithFixedWidth(height * sliderWidth), "sliderRotationX");
 
-                composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap), (val) => OnInput(val, EnumAction.Rotation, EnumAxis.Y), key: "inputRotationY");
-                composer.AddSlider((val) => OnRotationXYZ(val, EnumAxis.Y), RightCopySet(ref twoBoundsReserve, fixedDeltaX: gap).WithFixedWidth(height * sliderWidth), "sliderRotationY");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap), (val) => OnInput(val, EnumAction.Rotation, EnumAxis.Y), key: "inputRotationY");
+                    composer.AddSlider((val) => OnRotationXYZ(val, EnumAxis.Y), RightCopySet(ref twoBoundsReserve, fixedDeltaX: gap).WithFixedWidth(height * sliderWidth), "sliderRotationY");
 
-                composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap), (val) => OnInput(val, EnumAction.Rotation, EnumAxis.Z), key: "inputRotationZ");
-                composer.AddSlider((val) => OnRotationXYZ(val, EnumAxis.Z), RightCopySet(ref twoBoundsReserve, fixedDeltaX: gap).WithFixedWidth(height * sliderWidth), "sliderRotationZ");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap), (val) => OnInput(val, EnumAction.Rotation, EnumAxis.Z), key: "inputRotationZ");
+                    composer.AddSlider((val) => OnRotationXYZ(val, EnumAxis.Z), RightCopySet(ref twoBoundsReserve, fixedDeltaX: gap).WithFixedWidth(height * sliderWidth), "sliderRotationZ");
 
-                composer.AddDynamicText("", textFont, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textElementProperties");
-                composer.AddSwitch(ToggleElementPropertiesShade, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedHeight(height), "switchElementPropertiesShade");
-                composer.AddDynamicText("", textFont, RightCopySet(ref twoBounds, fixedDeltaX: gap, fixedDeltaY: gapM).WithFixedSize(textInputWidth, textHeight), "textElementPropertiesShade");
+                    composer.AddDynamicText("", textFont, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textElementProperties");
+                    composer.AddSwitch(ToggleElementPropertiesShade, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedHeight(height), "switchElementPropertiesShade");
+                    composer.AddDynamicText("", textFont, RightCopySet(ref twoBounds, fixedDeltaX: gap, fixedDeltaY: gapM).WithFixedSize(textInputWidth, textHeight), "textElementPropertiesShade");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textClimateColorMap");
-                composer.AddTextInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(textWidth, height), OnClimateInput, key: "inputClimateColorMap");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textClimateColorMap");
+                    composer.AddTextInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(textWidth, height), OnClimateInput, key: "inputClimateColorMap");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textSeasonColorMap");
-                composer.AddTextInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(textWidth, height), OnSeasonInput, key: "inputSeasonColorMap");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textSeasonColorMap");
+                    composer.AddTextInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(textWidth, height), OnSeasonInput, key: "inputSeasonColorMap");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textRenderPass");
-                composer.AddDropDown(renderPassValues, renderPassNames, 0, OnSetRenderPass, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(textWidth, height), key: "dropdownRenderPass");
-            }
-            if (currentTab == tabFace)
-            {
-                composer.AddDynamicText("", textFont, BelowCopySet(ref twoBounds, height * 2, gap).WithFixedSize(textWidth, textHeight), "textFaceSide");
-                composer.AddDropDown(sideValues, sideNames, 0, OnSetFaceSide, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), "dropdownFaceSide");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textRenderPass");
+                    composer.AddDropDown(renderPassValues, renderPassNames, 0, OnSetRenderPass, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(textWidth, height), key: "dropdownRenderPass");
+                    break;
+                case EnumTab.Face:
+                    composer.AddDynamicText("", textFont, BelowCopySet(ref twoBounds, height * 2, gap).WithFixedSize(textWidth, textHeight), "textFaceSide");
+                    composer.AddDropDown(sideValues, sideNames, 0, OnSetFaceSide, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), "dropdownFaceSide");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceUV");
-                composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth4, height), (val) => OnFaceInput(val, 0), key: "inputFaceUV0");
-                composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnFaceInput(val, 1), key: "inputFaceUV1");
-                composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnFaceInput(val, 2), key: "inputFaceUV2");
-                composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnFaceInput(val, 3), key: "inputFaceUV3");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceUV");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth4, height), (val) => OnFaceInput(val, 0), key: "inputFaceUV0");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnFaceInput(val, 1), key: "inputFaceUV1");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnFaceInput(val, 2), key: "inputFaceUV2");
+                    composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnFaceInput(val, 3), key: "inputFaceUV3");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceRotation");
-                composer.AddDropDown(faceRotationNames, faceRotationNames, 0, OnSetFaceRotation, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), key: "dropdownFaceRotation");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceRotation");
+                    composer.AddDropDown(faceRotationNames, faceRotationNames, 0, OnSetFaceRotation, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), key: "dropdownFaceRotation");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceProperties");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceProperties");
 
-                composer.AddSwitch(ToggleFacePropertiesEnabled, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedHeight(height), "switchFacePropertiesEnabled");
-                composer.AddDynamicText("", textFont, RightCopySet(ref twoBounds, fixedDeltaX: gap, fixedDeltaY: gapM).WithFixedSize(textInputWidth, textHeight), "textFacePropertiesEnabled");
+                    composer.AddSwitch(ToggleFacePropertiesEnabled, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedHeight(height), "switchFacePropertiesEnabled");
+                    composer.AddDynamicText("", textFont, RightCopySet(ref twoBounds, fixedDeltaX: gap, fixedDeltaY: gapM).WithFixedSize(textInputWidth, textHeight), "textFacePropertiesEnabled");
 
-                composer.AddSwitch(ToggleFacePropertiesAutoResolution, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedHeight(height), "switchFacePropertiesAutoResolution");
-                composer.AddDynamicText("", textFont, RightCopySet(ref twoBounds, fixedDeltaX: gap, fixedDeltaY: gapM).WithFixedSize(textInputWidth, textHeight), "textFacePropertiesAutoResolution");
+                    composer.AddSwitch(ToggleFacePropertiesAutoResolution, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedHeight(height), "switchFacePropertiesAutoResolution");
+                    composer.AddDynamicText("", textFont, RightCopySet(ref twoBounds, fixedDeltaX: gap, fixedDeltaY: gapM).WithFixedSize(textInputWidth, textHeight), "textFacePropertiesAutoResolution");
 
-                composer.AddSwitch(ToggleFacePropertiesSnapUV, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedHeight(height), "switchFacePropertiesSnapUV");
-                composer.AddDynamicText("", textFont, RightCopySet(ref twoBounds, fixedDeltaX: gap, fixedDeltaY: gapM).WithFixedSize(textInputWidth, textHeight), "textFacePropertiesSnapUV");
+                    composer.AddSwitch(ToggleFacePropertiesSnapUV, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedHeight(height), "switchFacePropertiesSnapUV");
+                    composer.AddDynamicText("", textFont, RightCopySet(ref twoBounds, fixedDeltaX: gap, fixedDeltaY: gapM).WithFixedSize(textInputWidth, textHeight), "textFacePropertiesSnapUV");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceGlowLevel");
-                composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), OnFaceGlowLevel, key: "inputFaceGlowLevel");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceGlowLevel");
+                    composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), OnFaceGlowLevel, key: "inputFaceGlowLevel");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceReflectiveMode");
-                composer.AddDropDown(reflectiveModeValues, reflectiveModeNames, 0, OnSetFaceReflectiveMode, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), key: "dropdownFaceReflectiveMode");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceReflectiveMode");
+                    composer.AddDropDown(reflectiveModeValues, reflectiveModeNames, 0, OnSetFaceReflectiveMode, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), key: "dropdownFaceReflectiveMode");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceWindMode1");
-                composer.AddDropDown(windModeValues, windModeNames, 0, OnSetFaceWindMode, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), key: "dropdownFaceWindMode1");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceWindMode1");
+                    composer.AddDropDown(windModeValues, windModeNames, 0, OnSetFaceWindMode, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), key: "dropdownFaceWindMode1");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceWindMode2");
-                composer.AddDropDown(windModeValues, windModeNames, 0, OnSetFaceWindMode, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), key: "dropdownFaceWindMode2");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceWindMode2");
+                    composer.AddDropDown(windModeValues, windModeNames, 0, OnSetFaceWindMode, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), key: "dropdownFaceWindMode2");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceWindMode3");
-                composer.AddDropDown(windModeValues, windModeNames, 0, OnSetFaceWindMode, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), key: "dropdownFaceWindMode3");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceWindMode3");
+                    composer.AddDropDown(windModeValues, windModeNames, 0, OnSetFaceWindMode, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), key: "dropdownFaceWindMode3");
 
-                composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceWindMode4");
-                composer.AddDropDown(windModeValues, windModeNames, 0, OnSetFaceWindMode, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), key: "dropdownFaceWindMode4");
+                    composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceWindMode4");
+                    composer.AddDropDown(windModeValues, windModeNames, 0, OnSetFaceWindMode, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), key: "dropdownFaceWindMode4");
+                    break;
             }
 
             composer.EndChildElements();
@@ -224,13 +223,12 @@ public class GuiDialogModelCreator : GuiDialog
         }
         catch (Exception) { }
 
-
-        if (composer != null)
+        if (composer != null && composer.GetToggleButton("tabCube") != null && composer.GetToggleButton("tabFace") != null)
         {
             switch (currentTab)
             {
-                case tabCube: composer.GetToggleButton("tabCube").On = true; break;
-                case tabFace: composer.GetToggleButton("tabFace").On = true; break;
+                case EnumTab.Cube: composer.GetToggleButton("tabCube").On = true; break;
+                case EnumTab.Face: composer.GetToggleButton("tabFace").On = true; break;
             }
         }
 
@@ -242,7 +240,7 @@ public class GuiDialogModelCreator : GuiDialog
 
         switch (currentTab)
         {
-            case tabCube:
+            case EnumTab.Cube:
                 composer?.GetDynamicText("textScaleXYZ")?.SetNewText(TabCube.langCodeScale.Localize());
                 composer?.GetDynamicText("textPositionXYZ")?.SetNewText(TabCube.langCodePosition.Localize());
                 composer?.GetDynamicText("textOriginXYZ")?.SetNewText(TabCube.langCodeOrigin.Localize());
@@ -287,7 +285,7 @@ public class GuiDialogModelCreator : GuiDialog
                     composer?.GetDropDown("dropdownRenderPass")?.SetSelectedIndex(selectedElem.RenderPass + 1);
                 }
                 break;
-            case tabFace:
+            case EnumTab.Face:
                 composer?.GetDynamicText("textFaceSide")?.SetNewText(TabFace.langCodeSide.Localize());
                 composer?.GetDynamicText("textFaceUV")?.SetNewText(TabFace.langCodeFaceUV.Localize());
                 composer?.GetDynamicText("textFaceRotation")?.SetNewText(TabFace.langCodeRotation.Localize());
@@ -337,12 +335,18 @@ public class GuiDialogModelCreator : GuiDialog
         }
     }
 
-    private void OnTabClicked(EnumTab tab) => currentTab = tab switch
+    private void OnTabClicked(EnumTab tab)
     {
-        EnumTab.Cube => tabCube,
-        EnumTab.Face => tabFace,
-        _ => "",
-    };
+        EnumTab prevTab = currentTab;
+        EnumTab nextTab = tab;
+        currentTab = nextTab;
+
+        if (prevTab != nextTab)
+        {
+            ClearComposers();
+            ComposeDialog();
+        }
+    }
 
     private void ToggleFacePropertiesEnabled(bool val)
     {
@@ -609,11 +613,13 @@ public class GuiDialogModelCreator : GuiDialog
     {
         base.OnGuiOpened();
         Client.ShowDialog = true;
+        ComposeDialog();
     }
 
     public override void OnGuiClosed()
     {
         base.OnGuiClosed();
         Client.ShowDialog = false;
+        ClearComposers();
     }
 }
