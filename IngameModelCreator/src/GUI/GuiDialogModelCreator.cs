@@ -69,7 +69,7 @@ public class GuiDialogModelCreator : GuiDialog
             }
         }
 
-        if (recompose || blockEntity == null)
+        if (recompose)
         {
             recompose = false;
             ComposeDialog();
@@ -81,7 +81,7 @@ public class GuiDialogModelCreator : GuiDialog
     {
         ClearComposers();
 
-        if (blockEntity == null) { return; }
+        if (blockEntity == null) return;
 
         Dictionary<short, string> renderPasses = new Dictionary<short, string>()
         {
@@ -497,10 +497,12 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
         if (action is not EnumAction.Rename && !double.TryParse(val, out newVal)) return;
 
+        bool same = false;
+
         if (action == EnumAction.Rename)
         {
+            same = Client.Shape.Elements[selectedElementIndex].Name == val;
             Client.Shape.Elements[selectedElementIndex].Name = val;
-            return;
         }
 
         switch (action)
@@ -512,25 +514,40 @@ public class GuiDialogModelCreator : GuiDialog
                 if (newVal <= 0) return;
                 switch (axis)
                 {
-                    case EnumAxis.X: Client.Shape.Elements[selectedElementIndex].ScaleX = newVal; break;
-                    case EnumAxis.Y: Client.Shape.Elements[selectedElementIndex].ScaleY = newVal; break;
-                    case EnumAxis.Z: Client.Shape.Elements[selectedElementIndex].ScaleZ = newVal; break;
+                    case EnumAxis.X:
+                        same = Client.Shape.Elements[selectedElementIndex].ScaleX == newVal;
+                        Client.Shape.Elements[selectedElementIndex].ScaleX = newVal; 
+                        break;
+                    case EnumAxis.Y:
+                        same = Client.Shape.Elements[selectedElementIndex].ScaleY == newVal;
+                        Client.Shape.Elements[selectedElementIndex].ScaleY = newVal; 
+                        break;
+                    case EnumAxis.Z:
+                        same = Client.Shape.Elements[selectedElementIndex].ScaleZ == newVal;
+                        Client.Shape.Elements[selectedElementIndex].ScaleZ = newVal;
+                        break;
                 }
                 break;
             case EnumAction.Position:
                 switch (axis)
                 {
                     case EnumAxis.X:
+                        same = Client.Shape.Elements[selectedElementIndex].To[0] == newVal;
                         Client.Shape.Elements[selectedElementIndex].To[0] = newVal;
                         Client.Shape.Elements[selectedElementIndex].From[0] = newVal - 1;
+                        OnInput(val, EnumAction.Origin, axis);
                         break;
                     case EnumAxis.Y:
+                        same = Client.Shape.Elements[selectedElementIndex].To[1] == newVal;
                         Client.Shape.Elements[selectedElementIndex].To[1] = newVal;
                         Client.Shape.Elements[selectedElementIndex].From[1] = newVal - 1;
+                        OnInput(val, EnumAction.Origin, axis);
                         break;
                     case EnumAxis.Z:
+                        same = Client.Shape.Elements[selectedElementIndex].To[2] == newVal;
                         Client.Shape.Elements[selectedElementIndex].To[2] = newVal;
                         Client.Shape.Elements[selectedElementIndex].From[2] = newVal - 1;
+                        OnInput(val, EnumAction.Origin, axis);
                         break;
                 }
                 break;
@@ -539,14 +556,17 @@ public class GuiDialogModelCreator : GuiDialog
                 {
                     case EnumAxis.X:
                         Client.Shape.Elements[selectedElementIndex].RotationOrigin ??= new double[3];
+                        same = Client.Shape.Elements[selectedElementIndex].RotationOrigin[0] == newVal;
                         Client.Shape.Elements[selectedElementIndex].RotationOrigin[0] = newVal;
                         break;
                     case EnumAxis.Y:
                         Client.Shape.Elements[selectedElementIndex].RotationOrigin ??= new double[3];
+                        same = Client.Shape.Elements[selectedElementIndex].RotationOrigin[1] == newVal;
                         Client.Shape.Elements[selectedElementIndex].RotationOrigin[1] = newVal;
                         break;
                     case EnumAxis.Z:
                         Client.Shape.Elements[selectedElementIndex].RotationOrigin ??= new double[3];
+                        same = Client.Shape.Elements[selectedElementIndex].RotationOrigin[2] == newVal;
                         Client.Shape.Elements[selectedElementIndex].RotationOrigin[2] = newVal;
                         break;
                 }
@@ -555,13 +575,27 @@ public class GuiDialogModelCreator : GuiDialog
                 if (newVal is < -180 or > 180) return;
                 switch (axis)
                 {
-                    case EnumAxis.X: Client.Shape.Elements[selectedElementIndex].RotationX = newVal; break;
-                    case EnumAxis.Y: Client.Shape.Elements[selectedElementIndex].RotationY = newVal; break;
-                    case EnumAxis.Z: Client.Shape.Elements[selectedElementIndex].RotationZ = newVal; break;
+                    case EnumAxis.X:
+                        same = Client.Shape.Elements[selectedElementIndex].RotationX == newVal;
+                        Client.Shape.Elements[selectedElementIndex].RotationX = newVal; 
+                        break;
+                    case EnumAxis.Y:
+                        same = Client.Shape.Elements[selectedElementIndex].RotationY == newVal;
+                        Client.Shape.Elements[selectedElementIndex].RotationY = newVal; 
+                        break;
+                    case EnumAxis.Z:
+                        same = Client.Shape.Elements[selectedElementIndex].RotationZ == newVal;
+                        Client.Shape.Elements[selectedElementIndex].RotationZ = newVal; 
+                        break;
                 }
                 break;
 
         }
+        if (same)
+        {
+            return;
+        }
+        recompose = true;
         blockEntity.MarkDirty(true);
     }
 
