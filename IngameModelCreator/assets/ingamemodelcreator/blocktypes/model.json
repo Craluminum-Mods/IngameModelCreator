@@ -1,0 +1,17 @@
+{
+  "code": "model",
+  "class": "IngameModelCreator.BlockModelCreator",
+  "entityClass": "IngameModelCreator.ModelCreator",
+  "attributes": {
+    "patternGroups": [ "basic" ],
+    "shape": { "base": "ingamemodelcreator:voxel" },
+    "textures": {
+      "0": { "base": "game:block/cloth/linen/white" },
+    }
+  },
+  "creativeinventory": { "vsmc": [ "*" ] },
+  "lightAbsorption": 0,
+  "sidesolid": { "all": false },
+  "sideopaque": { "all": false },
+  "emitSideAo": { "all": false }
+}
