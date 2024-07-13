@@ -388,16 +388,16 @@ public class GuiDialogModelCreator : GuiDialog
         blockEntity.MarkDirty(true);
     }
 
-    private void OnSetFaceReflectiveMode(string code, bool selected)
+    private void OnSetFaceReflectiveMode(string val, bool selected)
     {
-        if (!EnumReflectiveMode.TryParse(code, out EnumReflectiveMode newVal)) return;
+        if (!EnumReflectiveMode.TryParse(val, out EnumReflectiveMode newVal)) return;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
         Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].ReflectiveMode = newVal;
     }
 
-    private void OnSetFaceWindMode(string code, bool selected)
+    private void OnSetFaceWindMode(string val, bool selected)
     {
         // not implemented
         //Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].WindMode = newVal;
@@ -406,42 +406,42 @@ public class GuiDialogModelCreator : GuiDialog
 
     private void OnFaceInput(string val, int uvIndex)
     {
-        float _newValue;
+        float newVal;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-        if (!float.TryParse(val, out _newValue)) return;
+        if (!float.TryParse(val, out newVal)) return;
         ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
         if (selectedElem.FacesResolved.Length == 0) return;
         ShapeElementFace selectedFace = selectedElem.FacesResolved[selectedFaceIndex];
-        selectedFace.Uv[uvIndex] = _newValue;
+        selectedFace.Uv[uvIndex] = newVal;
         blockEntity.MarkDirty(true);
     }
 
-    private void OnSetFaceSide(string code, bool selected)
+    private void OnSetFaceSide(string val, bool selected)
     {
-        if (!int.TryParse(code, out int _newValue)) return;
+        if (!int.TryParse(val, out int newVal)) return;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
-        selectedFaceIndex = _newValue;
+        selectedFaceIndex = newVal;
     }
 
-    private void OnSetFaceRotation(string code, bool selected)
+    private void OnSetFaceRotation(string val, bool selected)
     {
-        if (!int.TryParse(code, out int _newValue)) return;
+        if (!int.TryParse(val, out int newVal)) return;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
-        Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].Rotation = _newValue;
+        Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].Rotation = newVal;
     }
 
-    private void OnSetRenderPass(string code, bool selected)
+    private void OnSetRenderPass(string val, bool selected)
     {
-        if (!short.TryParse(code, out short _newValue)) return;
+        if (!short.TryParse(val, out short newVal)) return;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
 
-        Client.Shape.Elements[selectedElementIndex].RenderPass = _newValue;
+        Client.Shape.Elements[selectedElementIndex].RenderPass = newVal;
     }
 
     private void OnClimateInput(string val)
@@ -470,26 +470,26 @@ public class GuiDialogModelCreator : GuiDialog
 
     private bool OnRotationXYZ(int val, EnumAxis axis)
     {
-        double _newValue = val;
+        double newVal = val;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return false;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return false;
-        if (_newValue is < -180 or > 180) return false;
+        if (newVal is < -180 or > 180) return false;
 
         switch (axis)
         {
-            case EnumAxis.X: Client.Shape.Elements[selectedElementIndex].RotationX = _newValue; break;
-            case EnumAxis.Y: Client.Shape.Elements[selectedElementIndex].RotationY = _newValue; break;
-            case EnumAxis.Z: Client.Shape.Elements[selectedElementIndex].RotationZ = _newValue; break;
+            case EnumAxis.X: Client.Shape.Elements[selectedElementIndex].RotationX = newVal; break;
+            case EnumAxis.Y: Client.Shape.Elements[selectedElementIndex].RotationY = newVal; break;
+            case EnumAxis.Z: Client.Shape.Elements[selectedElementIndex].RotationZ = newVal; break;
         }
         return true;
     }
 
     private void OnInput(string val, EnumAction action, EnumAxis axis = EnumAxis.X)
     {
-        double _newVal = 0;
+        double newVal = 0;
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
-        if (action is not EnumAction.Rename && !double.TryParse(val, out _newVal)) return;
+        if (action is not EnumAction.Rename && !double.TryParse(val, out newVal)) return;
 
         if (action == EnumAction.Rename)
         {
@@ -503,28 +503,28 @@ public class GuiDialogModelCreator : GuiDialog
                 Client.Shape.Elements[selectedElementIndex].Name = val;
                 break;
             case EnumAction.Scale:
-                if (_newVal <= 0) return;
+                if (newVal <= 0) return;
                 switch (axis)
                 {
-                    case EnumAxis.X: Client.Shape.Elements[selectedElementIndex].ScaleX = _newVal; break;
-                    case EnumAxis.Y: Client.Shape.Elements[selectedElementIndex].ScaleY = _newVal; break;
-                    case EnumAxis.Z: Client.Shape.Elements[selectedElementIndex].ScaleZ = _newVal; break;
+                    case EnumAxis.X: Client.Shape.Elements[selectedElementIndex].ScaleX = newVal; break;
+                    case EnumAxis.Y: Client.Shape.Elements[selectedElementIndex].ScaleY = newVal; break;
+                    case EnumAxis.Z: Client.Shape.Elements[selectedElementIndex].ScaleZ = newVal; break;
                 }
                 break;
             case EnumAction.Position:
                 switch (axis)
                 {
                     case EnumAxis.X:
-                        Client.Shape.Elements[selectedElementIndex].To[0] = _newVal;
-                        Client.Shape.Elements[selectedElementIndex].From[0] = _newVal - 1;
+                        Client.Shape.Elements[selectedElementIndex].To[0] = newVal;
+                        Client.Shape.Elements[selectedElementIndex].From[0] = newVal - 1;
                         break;
                     case EnumAxis.Y:
-                        Client.Shape.Elements[selectedElementIndex].To[1] = _newVal;
-                        Client.Shape.Elements[selectedElementIndex].From[1] = _newVal - 1;
+                        Client.Shape.Elements[selectedElementIndex].To[1] = newVal;
+                        Client.Shape.Elements[selectedElementIndex].From[1] = newVal - 1;
                         break;
                     case EnumAxis.Z:
-                        Client.Shape.Elements[selectedElementIndex].To[2] = _newVal;
-                        Client.Shape.Elements[selectedElementIndex].From[2] = _newVal - 1;
+                        Client.Shape.Elements[selectedElementIndex].To[2] = newVal;
+                        Client.Shape.Elements[selectedElementIndex].From[2] = newVal - 1;
                         break;
                 }
                 break;
@@ -533,25 +533,25 @@ public class GuiDialogModelCreator : GuiDialog
                 {
                     case EnumAxis.X:
                         Client.Shape.Elements[selectedElementIndex].RotationOrigin ??= new double[3];
-                        Client.Shape.Elements[selectedElementIndex].RotationOrigin[0] = _newVal;
+                        Client.Shape.Elements[selectedElementIndex].RotationOrigin[0] = newVal;
                         break;
                     case EnumAxis.Y:
                         Client.Shape.Elements[selectedElementIndex].RotationOrigin ??= new double[3];
-                        Client.Shape.Elements[selectedElementIndex].RotationOrigin[1] = _newVal;
+                        Client.Shape.Elements[selectedElementIndex].RotationOrigin[1] = newVal;
                         break;
                     case EnumAxis.Z:
                         Client.Shape.Elements[selectedElementIndex].RotationOrigin ??= new double[3];
-                        Client.Shape.Elements[selectedElementIndex].RotationOrigin[2] = _newVal;
+                        Client.Shape.Elements[selectedElementIndex].RotationOrigin[2] = newVal;
                         break;
                 }
                 break;
             case EnumAction.Rotation:
-                if (_newVal is < -180 or > 180) return;
+                if (newVal is < -180 or > 180) return;
                 switch (axis)
                 {
-                    case EnumAxis.X: Client.Shape.Elements[selectedElementIndex].RotationX = _newVal; break;
-                    case EnumAxis.Y: Client.Shape.Elements[selectedElementIndex].RotationY = _newVal; break;
-                    case EnumAxis.Z: Client.Shape.Elements[selectedElementIndex].RotationZ = _newVal; break;
+                    case EnumAxis.X: Client.Shape.Elements[selectedElementIndex].RotationX = newVal; break;
+                    case EnumAxis.Y: Client.Shape.Elements[selectedElementIndex].RotationY = newVal; break;
+                    case EnumAxis.Z: Client.Shape.Elements[selectedElementIndex].RotationZ = newVal; break;
                 }
                 break;
 
@@ -559,7 +559,7 @@ public class GuiDialogModelCreator : GuiDialog
         blockEntity.MarkDirty(true);
     }
 
-    private void OnAddElement(bool newValue)
+    private void OnAddElement(bool val)
     {
         ShapeElement newElement = new ShapeElement()
         {
@@ -580,7 +580,7 @@ public class GuiDialogModelCreator : GuiDialog
         blockEntity.MarkDirty(true);
     }
 
-    private void OnRemoveElement(bool newValue)
+    private void OnRemoveElement(bool val)
     {
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
@@ -588,7 +588,7 @@ public class GuiDialogModelCreator : GuiDialog
         blockEntity.MarkDirty(true);
     }
 
-    private void OnDuplicateElement(bool newValue)
+    private void OnDuplicateElement(bool val)
     {
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
