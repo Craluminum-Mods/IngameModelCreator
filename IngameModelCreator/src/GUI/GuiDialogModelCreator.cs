@@ -35,14 +35,7 @@ public class GuiDialogModelCreator : GuiDialog
 
     private void Every500ms(float dt)
     {
-        if (blockEntity == null)
-        {
-            BlockSelection blockSel = capi?.World?.Player?.CurrentBlockSelection;
-            if (blockSel != null && capi.World.BlockAccessor.GetBlockEntity(blockSel.Position) is BlockEntityModel bemodel)
-            {
-                blockEntity = bemodel;
-            }
-        }
+        if (blockEntity == null)  StoreBlockEntity();
         //ComposeDialog(); // used only for debug
     }
 
@@ -649,8 +642,18 @@ public class GuiDialogModelCreator : GuiDialog
         blockEntity.MarkDirty(true);
     }
 
+    private void StoreBlockEntity()
+    {
+        BlockSelection blockSel = capi?.World?.Player?.CurrentBlockSelection;
+        if (blockSel != null && capi.World.BlockAccessor.GetBlockEntity(blockSel.Position) is BlockEntityModel bemodel)
+        {
+            blockEntity = bemodel;
+        }
+    }
+
     public override void OnGuiOpened()
     {
+        StoreBlockEntity();
         ComposeDialog();
     }
 
