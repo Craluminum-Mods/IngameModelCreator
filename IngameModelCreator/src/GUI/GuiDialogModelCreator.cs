@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
@@ -55,7 +56,7 @@ public class GuiDialogModelCreator : GuiDialog
 
     private void Every500ms(float dt)
     {
-        ComposeDialog(blockEntity == null); // used only for debug
+        //ComposeDialog(blockEntity == null); // used only for debug
     }
 
     private void ComposeDialog(bool updateBlock = false)
@@ -132,6 +133,30 @@ public class GuiDialogModelCreator : GuiDialog
 
             composer.AddTextInput(oneBounds = BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedWidth(elemWindowInput), OnRenameElement, key: "inputElemName");
             composer.AddInset(BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedSize(elemWindowWidth, elemWindowHeight));
+
+            composer.AddCompactVerticalScrollbar(OnScrollElementWindow, ElementStdBounds.VerticalScrollbar(oneBoundsReserve), "verticalScrollbarElemWindow");
+
+            ShapeElement[] _elements = Client.Shape.Elements;
+            int _index = 0;
+            foreach (ShapeElement _elem in _elements)
+            {
+                _index = _elements.IndexOf(_elem);
+                ElementBounds _parentBounds = _index == 0
+                    ? (oneBoundsReserve = BelowCopySet(ref oneBounds, gap, textHeight).WithFixedSize(inputWidth3, textHeight))
+                    : (oneBoundsReserve = BelowCopySet(ref oneBounds).WithFixedSize(inputWidth3, textHeight));
+                composer.AddToggleButton(_elem.Name, textFont, (selected) => OnSetElement(_index, selected), _parentBounds);
+
+                if (_elem.Children == null || _elem.Children.Length == 0) continue;
+                foreach (ShapeElement child in _elem.Children)
+                {
+                    _index = _elem.Children.IndexOf(child);
+                    ElementBounds _childBounds = _index == 0
+                        ? (oneBoundsReserve = BelowCopySet(ref oneBounds, gap))
+                        : (oneBoundsReserve = BelowCopySet(ref oneBounds));
+                    _index = _elements.IndexOf(child);
+                    composer.AddToggleButton(child.Name, textFont, (selected) => OnSetElement(_index, selected), _childBounds);
+                }
+            }
 
             switch (currentTab)
             {
@@ -332,6 +357,14 @@ public class GuiDialogModelCreator : GuiDialog
                 }
                 break;
         }
+    }
+
+    private void OnScrollElementWindow(float val) { }
+
+    private void OnSetElement(int index, bool val)
+    {
+        selectedElementIndex = Math.Max(0, index);
+        //ComposeDialog();
     }
 
     private void OnTabClicked(int tabindex)
@@ -618,9 +651,15 @@ public class GuiDialogModelCreator : GuiDialog
 
     private void OnAddElement(bool val)
     {
+        int newIndex = 0;
+        while (Client.Shape.Elements.Any(x => x.Name == $"Cube{newIndex}"))
+        {
+            newIndex++;
+        }
+        string newName = $"Cube{newIndex}";
         ShapeElement newElement = new ShapeElement()
         {
-            Name = $"Cube{selectedElementIndex + 1}",
+            Name = newName,
             From = new Vec3d(0, 0, 0).ToDoubleArray(),
             To = new Vec3d(1, 1, 1).ToDoubleArray(),
             FacesResolved = new ShapeElementFace[BlockFacing.NumberOfFaces]
@@ -643,6 +682,7 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
         Client.Shape.Elements = Client.Shape.Elements.Remove(Client.Shape.Elements[selectedElementIndex]);
+        selectedElementIndex = Math.Max(0, Client.Shape.Elements.Length - 1);
         ComposeDialog();
         blockEntity.MarkDirty(true);
     }
