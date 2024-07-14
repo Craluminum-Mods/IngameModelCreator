@@ -55,12 +55,12 @@ public class GuiDialogModelCreator : GuiDialog
 
     private void Every500ms(float dt)
     {
-        if (blockEntity == null)  StoreBlockEntity();
-        //ComposeDialog(); // used only for debug
+        ComposeDialog(blockEntity == null); // used only for debug
     }
 
-    private void ComposeDialog()
+    private void ComposeDialog(bool updateBlock = false)
     {
+        if (updateBlock) StoreBlockEntity();
         ClearComposers();
         if (blockEntity == null) return;
 
@@ -83,19 +83,21 @@ public class GuiDialogModelCreator : GuiDialog
         string[] windModeValues = windModes.Keys.Select(x => x.ToString()).ToArray();
 
         double height = GuiElement.scaled(30);
-        double textHeight = GuiElement.scaled(height) / GuiElement.scaled(1.5);
+        double textHeight = GuiElement.scaled(20);
         double gap = GuiElement.scaled(10);
-        double gapM = GuiElement.scaled(gap) / GuiElement.scaled(2);
+        double gapM = GuiElement.scaled(5);
         double inputWidth1 = GuiElement.scaled(60);
         double inputWidth3 = GuiElement.scaled(75);
         double inputWidth4 = GuiElement.scaled(54);
-        double textWidth = GuiElement.scaled(240);
+        double textWidth = GuiElement.scaled(245);
         double textInputWidth = GuiElement.scaled(180);
-        double dropdownWidth = (inputWidth3 * GuiElement.scaled(3)) + (gap * GuiElement.scaled(2));
+        double dropdownWidth = GuiElement.scaled(245);
         double sliderWidth = GuiElement.scaled(5.75);
         double separatorIndent = GuiElement.scaled(90);
         double separatorWidth = GuiElement.scaled(60);
-        double elemWindowWidth = GuiElement.scaled(150);
+
+        double elemWindowInput = GuiElement.scaled(150);
+        double elemWindowWidth = GuiElement.scaled(123);
         double elemWindowHeight = GuiElement.scaled(630);
 
         CairoFont textFont = CairoFont.WhiteSmallText();
@@ -128,7 +130,7 @@ public class GuiDialogModelCreator : GuiDialog
             composer.AddIconButton(iconRemoveCustom, OnRemoveElement, RightCopySet(ref oneBounds, gap));
             composer.AddIconButton(iconDuplicateCustom, OnDuplicateElement, RightCopySet(ref oneBounds, gap));
 
-            composer.AddTextInput(BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedWidth(elemWindowWidth), OnRenameElement, key: "inputElemName");
+            composer.AddTextInput(oneBounds = BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedWidth(elemWindowInput), OnRenameElement, key: "inputElemName");
             composer.AddInset(BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedSize(elemWindowWidth, elemWindowHeight));
 
             switch (currentTab)
@@ -295,14 +297,17 @@ public class GuiDialogModelCreator : GuiDialog
                 {
                     ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
                     ShapeElementFace selectedFace = selectedElem.FacesResolved[selectedFaceIndex];
-                    float[] uv = selectedFace.Uv;
+                    float[] uv = selectedFace?.Uv;
 
                     composer?.GetDropDown("dropdownFaceSide")?.SetSelectedIndex(selectedFaceIndex);
 
-                    composer?.GetNumberInput("inputFaceUV0")?.SetValue(text: uv[0].ToString());
-                    composer?.GetNumberInput("inputFaceUV1")?.SetValue(text: uv[1].ToString());
-                    composer?.GetNumberInput("inputFaceUV2")?.SetValue(text: uv[2].ToString());
-                    composer?.GetNumberInput("inputFaceUV3")?.SetValue(text: uv[3].ToString());
+                    if (uv != null)
+                    {
+                        composer?.GetNumberInput("inputFaceUV0")?.SetValue(text: uv[0].ToString());
+                        composer?.GetNumberInput("inputFaceUV1")?.SetValue(text: uv[1].ToString());
+                        composer?.GetNumberInput("inputFaceUV2")?.SetValue(text: uv[2].ToString());
+                        composer?.GetNumberInput("inputFaceUV3")?.SetValue(text: uv[3].ToString());
+                    }
 
                     switch (selectedFace.Rotation)
                     {
@@ -334,9 +339,8 @@ public class GuiDialogModelCreator : GuiDialog
         currentTab = (EnumTab)tabindex;
         ComposeDialog();
     }
-
-    // doesn't work for some reason
-    private void ToggleFacePropertiesEnabled(bool val)
+ 
+    private void ToggleFacePropertiesEnabled(bool val) // doesn't work for some reason
     {
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
@@ -347,15 +351,9 @@ public class GuiDialogModelCreator : GuiDialog
         blockEntity.MarkDirty(true);
     }
 
-    private void ToggleFacePropertiesAutoResolution(bool val)
-    {
-        // not implemented
-    }
-
-    private void ToggleFacePropertiesSnapUV(bool val)
-    {
-        // not implemented
-    }
+    private void ToggleFacePropertiesAutoResolution(bool val) { } // not implemented
+    private void ToggleFacePropertiesSnapUV(bool val) { } // not implemented
+    private void OnSetFaceWindMode(string val, bool selected) { } // not implemented
 
     private void OnFaceGlowLevel(string val)
     {
@@ -383,13 +381,6 @@ public class GuiDialogModelCreator : GuiDialog
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
         Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].ReflectiveMode = (EnumReflectiveMode)newVal;
         blockEntity.MarkDirty(true);
-    }
-
-    private void OnSetFaceWindMode(string val, bool selected)
-    {
-        // not implemented
-        //Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].WindMode = newVal;
-        //Client.Shape.Elements[selectedElementIndex].FacesResolved[selectedFaceIndex].WindData = newVal;
     }
 
     private void OnFaceInput(string val, int uvIndex)
@@ -617,13 +608,11 @@ public class GuiDialogModelCreator : GuiDialog
         blockEntity.MarkDirty(true);
     }
 
-    // check whether this method works
-    private void OnRenameElement(string val)
+    private void OnRenameElement(string val) // doesn't work for some reason
     {
         if (Client.Shape == null || Client.Shape.Elements.Length == 0) return;
         if (Client.Shape.Elements.Length <= selectedElementIndex) return;
         Client.Shape.Elements[selectedElementIndex].Name = val;
-        //ComposeDialog();
         blockEntity.MarkDirty(true);
     }
 
@@ -672,20 +661,12 @@ public class GuiDialogModelCreator : GuiDialog
     private void StoreBlockEntity()
     {
         BlockSelection blockSel = capi?.World?.Player?.CurrentBlockSelection;
-        if (blockSel != null && capi.World.BlockAccessor.GetBlockEntity(blockSel.Position) is BlockEntityModel bemodel)
-        {
-            blockEntity = bemodel;
-        }
+        if (blockSel == null) return;
+        if (capi.World.BlockAccessor.GetBlockEntity(blockSel.Position) is not BlockEntityModel bemodel) return;
+        blockEntity = bemodel;
     }
 
-    public override void OnGuiOpened()
-    {
-        StoreBlockEntity();
-        ComposeDialog();
-    }
+    public override void OnGuiOpened() => ComposeDialog(updateBlock: true);
 
-    public override void OnGuiClosed()
-    {
-        currentTab = 0;
-    }
+    public override void OnGuiClosed() => currentTab = 0;
 }
