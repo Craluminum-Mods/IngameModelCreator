@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
@@ -322,7 +321,9 @@ public class GuiDialogModelCreator : GuiDialog
                 {
                     ShapeElement selectedElem = Client.Shape.Elements[selectedElementIndex];
                     ShapeElementFace selectedFace = selectedElem.FacesResolved[selectedFaceIndex];
-                    float[] uv = selectedFace?.Uv;
+                    if (selectedFace != null)
+                    {
+                        float[] uv = selectedFace.Uv;
 
                     composer?.GetDropDown("dropdownFaceSide")?.SetSelectedIndex(selectedFaceIndex);
 
@@ -354,6 +355,7 @@ public class GuiDialogModelCreator : GuiDialog
                     //composer?.GetDropDown("dropdownFaceWindMode2")?.SetSelectedIndex(selectedFace.WindMode2);
                     //composer?.GetDropDown("dropdownFaceWindMode3")?.SetSelectedIndex(selectedFace.WindMode3);
                     //composer?.GetDropDown("dropdownFaceWindMode4")?.SetSelectedIndex(selectedFace.WindMode4);
+                }
                 }
                 break;
         }
