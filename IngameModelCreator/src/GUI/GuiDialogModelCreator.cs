@@ -21,17 +21,9 @@ public class GuiDialogModelCreator : GuiDialog
     private EnumTab currentTab = EnumTab.Cube;
 
     private List<GuiTab> tabs = new List<GuiTab>(new GuiTab[2]
-{
-        new GuiTab
-        {
-            Name = TabCube.langCodeName.Localize(),
-            DataInt = 0
-        },
-        new GuiTab
-        {
-            Name = TabFace.langCodeName.Localize(),
-            DataInt = 1
-        }
+    {
+        new GuiTab { Name = TabCube.langCodeName.Localize(), DataInt = 0 },
+        new GuiTab { Name = TabFace.langCodeName.Localize(), DataInt = 1 }
     });
 
     public override string ToggleKeyCombinationCode => guiCode;
