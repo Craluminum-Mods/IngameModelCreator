@@ -1,8 +1,10 @@
 ﻿using Cairo;
 using IngameModelCreator.Systems;
 using IngameModelCreator.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -36,6 +38,19 @@ public class GuiDialogModelCreator : GuiDialog
 
     private void Event_FileDrop(FileDropEvent e)
     {
+        FileInfo _file = new FileInfo(e.Filename);
+        if (!_file.Exists)
+        {
+            return;
+        }
+        var jsonText = File.ReadAllText(_file.FullName);
+        Shape shape = JsonConvert.DeserializeObject<Shape>(jsonText);
+        if (shape != null)
+        {
+            Client.Shape = shape;
+            ComposeDialog();
+            blockEntity?.MarkDirty(true);
+        }
     }
 
     private void Every500ms(float dt)
