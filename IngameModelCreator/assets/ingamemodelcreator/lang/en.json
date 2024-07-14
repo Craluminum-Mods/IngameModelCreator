@@ -54,7 +54,7 @@
   "Face.FaceUV": "Face UV",
   "Face.Rotation": "Rotation",
   "Face.Properties": "Properties",
-  "Face.Properties.Enabled": "Enabled",
+  "Face.Properties.Enabled": "Enabled (WIP)",
   "Face.Properties.AutoResolution": "Auto Resolution (WIP)",
   "Face.Properties.SnapUV": "Snap UV (WIP)",
   "Face.GlowLevel": "Glow Level (0..255)",

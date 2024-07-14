@@ -31,6 +31,11 @@ public class GuiDialogModelCreator : GuiDialog
     public GuiDialogModelCreator(ICoreClientAPI capi) : base(capi)
     {
         capi.Event.RegisterGameTickListener(Every500ms, 500);
+        capi.Event.FileDrop += Event_FileDrop;
+    }
+
+    private void Event_FileDrop(FileDropEvent e)
+    {
     }
 
     private void Every500ms(float dt)
@@ -72,9 +77,15 @@ public class GuiDialogModelCreator : GuiDialog
         double textInputWidth = GuiElement.scaled(180);
         double dropdownWidth = (inputWidth3 * GuiElement.scaled(3)) + (gap * GuiElement.scaled(2));
         double sliderWidth = GuiElement.scaled(5.75);
+        double separatorIndent = GuiElement.scaled(90);
+        double separatorWidth = GuiElement.scaled(60);
+        double elemWindowWidth = GuiElement.scaled(150);
+        double elemWindowHeight = GuiElement.scaled(630);
 
         CairoFont textFont = CairoFont.WhiteSmallText();
+        textFont.WithFontSize((float)GuiElement.scaled(textFont.UnscaledFontsize));
         CairoFont tabFont = CairoFont.WhiteSmallText().WithWeight(FontWeight.Bold);
+        tabFont.WithFontSize((float)GuiElement.scaled(tabFont.UnscaledFontsize));
 
         ElementBounds mainBounds = ElementStdBounds.AutosizedMainDialog
             .WithAlignment(EnumDialogArea.LeftTop)
@@ -83,7 +94,7 @@ public class GuiDialogModelCreator : GuiDialog
         ElementBounds childBounds = new ElementBounds().WithSizing(ElementSizing.FitToChildren);
         ElementBounds backgroundBounds = childBounds.WithFixedPadding(GuiElement.scaled(15));
 
-        ElementBounds oneBounds = ElementBounds.FixedSize(height * 3, height).WithFixedOffset(0, height);
+        ElementBounds oneBounds = ElementBounds.FixedSize(separatorIndent, height).WithFixedOffset(0, height);
         ElementBounds twoBounds = oneBounds.RightCopy(gap);
         ElementBounds oneBoundsReserve = null;
         ElementBounds twoBoundsReserve = null;
@@ -101,13 +112,13 @@ public class GuiDialogModelCreator : GuiDialog
             composer.AddIconButton(iconRemoveCustom, OnRemoveElement, RightCopySet(ref oneBounds, gap));
             composer.AddIconButton(iconDuplicateCustom, OnDuplicateElement, RightCopySet(ref oneBounds, gap));
 
-            composer.AddTextInput(BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedWidth(height * 5), OnRenameElement, key: "inputElemName");
-            composer.AddInset(BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedSize(height * 5, height * 21));
+            composer.AddTextInput(BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedWidth(elemWindowWidth), OnRenameElement, key: "inputElemName");
+            composer.AddInset(BelowCopySet(ref oneBoundsReserve, fixedDeltaY: gap).WithFixedSize(elemWindowWidth, elemWindowHeight));
 
             switch (currentTab)
             {
                 case EnumTab.Cube:
-                    composer.AddDynamicText("", textFont, BelowCopySet(ref twoBounds, height * 2, gap).WithFixedSize(textWidth, textHeight), "textScaleXYZ");
+                    composer.AddDynamicText("", textFont, BelowCopySet(ref twoBounds, separatorWidth, gap).WithFixedSize(textWidth, textHeight), "textScaleXYZ");
                     composer.AddNumberInput(twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(inputWidth3, height), (val) => OnScaleXYZ(val, EnumAxis.X), key: "inputScaleX");
                     composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnScaleXYZ(val, EnumAxis.Y), key: "inputScaleY");
                     composer.AddNumberInput(RightCopySet(ref twoBounds, fixedDeltaX: gap), (val) => OnScaleXYZ(val, EnumAxis.Z), key: "inputScaleZ");
@@ -146,7 +157,7 @@ public class GuiDialogModelCreator : GuiDialog
                     composer.AddDropDown(renderPassValues, renderPassNames, 0, OnSetRenderPass, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(textWidth, height), key: "dropdownRenderPass");
                     break;
                 case EnumTab.Face:
-                    composer.AddDynamicText("", textFont, BelowCopySet(ref twoBounds, height * 2, gap).WithFixedSize(textWidth, textHeight), "textFaceSide");
+                    composer.AddDynamicText("", textFont, BelowCopySet(ref twoBounds, separatorWidth, gap).WithFixedSize(textWidth, textHeight), "textFaceSide");
                     composer.AddDropDown(sideValues, sideNames, 0, OnSetFaceSide, twoBoundsReserve = BelowCopySet(ref twoBounds, fixedDeltaY: gap).WithFixedSize(dropdownWidth, height), "dropdownFaceSide");
 
                     composer.AddDynamicText("", textFont, twoBounds = BelowCopySet(ref twoBoundsReserve, fixedDeltaY: gap).WithFixedSize(textWidth, textHeight), "textFaceUV");
