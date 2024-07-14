@@ -47,6 +47,7 @@ public class GuiDialogModelCreator : GuiDialog
     private void ComposeDialog()
     {
         ClearComposers();
+        if (blockEntity == null) return;
 
         Dictionary<short, string> renderPasses = new Dictionary<short, string>() { [-1] = langCodeDefault };
         renderPasses.AddRange(Enum.GetValues<EnumChunkRenderPass>().ToDictionary(x => (short)x, y => $"{langCodeRenderPassPrefix}{Enum.GetName(y)}".Localize()));
